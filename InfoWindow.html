@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>basemap</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/soria/soria.css">
+    <!--<link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/dijit/themes/soria/soria.css">-->
+    <link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">
+    <!--<link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/esri/css/esri.css">-->
+
+    <style>
+        body{
+            padding:0;
+            margin: 0;
+        }
+        #map{
+            height: -webkit-fill-available;
+        }
+    </style>
+
+    <script>var dojoConfig = { parseOnLoad: true };</script>
+    <script src="https://js.arcgis.com/3.20/"></script>
+    <!--<script src="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/init.js"></script>-->
+    <script>
+        dojo.require("esri.map");
+        dojo.require("esri.graphic");
+        dojo.require("esri.InfoTemplate");
+        dojo.require("esri.SpatialReference");
+        dojo.require("esri.geometry.Point");
+        dojo.require("esri.symbols.SimpleMarkerSymbol");
+        dojo.require("esri.symbols.TextSymbol");
+        dojo.require("esri.symbols.Font");
+        dojo.require("esri.Color");
+
+        var map;
+
+        function init() {
+            var initExtent = new esri.geometry.Extent({
+                "xmin": -16918000,
+                "ymin": 1551000,
+                "xmax": 5936000,
+                "ymax": 11217000,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            });
+            map = new esri.Map("map", {
+                //extent: initExtent,
+                basemap: "osm",
+                center: [-81.3765, 28.54175],
+                zoom: 6,
+                showAttribution:false,
+                showLabels : true,
+                logo:false,
+                scale:true,
+                slider:false
+            });
+            map.infoWindow.resize(500,400); //定义弹出框大小
+
+            map.on("load", function() { ShowLocation(-81.3765, 28.54175,"001","红河",21); });
+
+        }
+
+        function ShowLocation(x, y , pop, StationName, Showtext) {
+            //点
+            var point = new esri.geometry.Point(x, y, new esri.SpatialReference({wkid:4326}));
+            var simpleMarkerSymbol = new esri.symbol.SimpleMarkerSymbol();
+            simpleMarkerSymbol.setColor(new esri.Color("#FF0000"));
+            simpleMarkerSymbol.setOutline(null);
+            simpleMarkerSymbol.setSize("10");
+            var graphic = new esri.Graphic(point, simpleMarkerSymbol);
+
+            var infoTemplate = new esri.InfoTemplate();
+            infoTemplate.setTitle("详细信息");
+            infoTemplate.setContent(pop);
+
+            graphic.setInfoTemplate(infoTemplate)
+            map.graphics.add(graphic);
+
+            //站名
+            var font = new esri.symbol.Font("15pt", esri.symbol.Font.STYLE_NORMAL, esri.symbol.Font.VARIANT_NORMAL, esri.symbol.Font.WEIGHT_BOLDER);
+            var textSymbol = new esri.symbol.TextSymbol(StationName ,font, new esri.Color([0, 0, 0]));
+            textSymbol.setOffset(0, -30);
+            var name=new esri.Graphic(point, textSymbol)
+            map.graphics.add(name);
+
+            //关注的要素
+            var textSymbol = new esri.symbol.TextSymbol(Showtext, new esri.symbol.Font("20pt"), new esri.Color("#FF4C00"));
+            textSymbol.setOffset(20, 10);
+            var text=new esri.Graphic(point, textSymbol)
+            map.graphics.add(text);
+        };
+
+        dojo.ready(init);
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
