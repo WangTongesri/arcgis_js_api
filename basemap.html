@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>basemap</title>
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/soria/soria.css">-->
+    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/dijit/themes/soria/soria.css">
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">-->
+    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/esri/css/esri.css">
+
+    <style>
+        body{
+            padding:0;
+            margin: 0;
+        }
+        #map{
+            height: -webkit-fill-available;
+        }
+    </style>
+
+    <script>var dojoConfig = { parseOnLoad: true };</script>
+    <!--<script src="https://js.arcgis.com/3.20/"></script>-->
+    <script src="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/init.js"></script>
+    <script>
+        dojo.require("esri.map");
+
+        var map;
+
+        function init() {
+            var initExtent = new esri.geometry.Extent({
+                "xmin": -16918000,
+                "ymin": 1551000,
+                "xmax": 5936000,
+                "ymax": 11217000,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            });
+            map = new esri.Map("map", {
+                //extent: initExtent,
+                basemap: "osm",
+                center: [103.95,22.5],
+                zoom: 6,
+                showAttribution:false,
+                showLabels : true,
+                logo:false,
+                scale:true,
+                slider:false
+            });
+
+        }
+
+        dojo.ready(init);
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
