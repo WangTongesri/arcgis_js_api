@@ -1,7 +1,6 @@
 $("#btn_submit").click(function(){
     //获取要分析的数据
     var target=$("#target_name").attr("data-value");
-    var join=$("#join_name").attr("data-value");
 
     /*---------执行GA分析流程---------
     ************   1.获取token
@@ -13,11 +12,12 @@ $("#btn_submit").click(function(){
         var token = res_token.token;
         console.log("GAtoken:"+token);
 
-        join_func(target,join,'join','',token,function(res_url) {
+        AggPoints_func(target,5,'',token,function(res_url) {
             var result=res_url;
             console.log("Join分析结果地址:"+result);
             if(result!=''){
-                SumAtt_func(result,'dlbm','',token,function(res_data){
+                MapAdd(result);
+                SumAtt_func(result,'COUNT','',token,function(res_data){
                     console.log("Summarize Attributes分析结果地址:"+res_data);
                     alert("执行成功");
                 })

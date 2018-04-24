@@ -45,7 +45,7 @@ var query_func=function(url,fields,token,callback){
 }
 
 // join分析
-function join_func(data1,data2,outputname,Context,token,callback){
+function join_func(data1,data2,outputname,context,token,callback){
     var url=GA_url+'JoinFeatures/submitJob';
     var rest_data={
         targetLayer: '{"url":"'+data1+'"}',
@@ -54,7 +54,7 @@ function join_func(data1,data2,outputname,Context,token,callback){
         spatialRelationship:"Intersects",
         //summaryFields:'[]',
         outputName:"join_output"+outputname+new Date().getTime(),
-        context:Context,
+        context:context,
         f: 'json',
         token: token
 
@@ -77,7 +77,7 @@ function join_func(data1,data2,outputname,Context,token,callback){
                 console.log(jobStatus);
             }
             if (jobStatus == 'esriJobFailed' || jobStatus == 'esriJobTimedOut' || jobStatus == 'esriJobCancelling' || jobStatus == 'esriJobCancelled') {
-                console.log(jobStatus);
+                console.log(res.messages);
                 window.clearInterval(clock);
                 callback('');
 
@@ -128,7 +128,54 @@ function SumAtt_func(data1,fields,context,token,callback){
                 console.log(jobStatus);
             }
             if (jobStatus == 'esriJobFailed' || jobStatus == 'esriJobTimedOut' || jobStatus == 'esriJobCancelling' || jobStatus == 'esriJobCancelled') {
+                console.log(res.messages);
+                window.clearInterval(clock);
+                callback("")
+            }
+            if (jobStatus == 'esriJobSucceeded') {
+                var output = joburl + '/results/output';
+                window.clearInterval(clock);
+                ajaxfunc(output,'POST',data,function (res) {
+                    var resultOutput = res.value.url;
+                    callback(resultOutput);
+                })
+            }
+        })
+    }
+}
+
+//X公里格网点聚合分析
+function AggPoints_func(data1,num,context,token,callback){
+    var url=GA_url+'AggregatePoints/submitJob';
+    var rest_data={
+        pointLayer: '{"url":"'+data1+'"}',
+        binType:"Hexagon",
+        binSize:num,
+        binSizeUnit:"Kilometers",
+        polygonLayer:"",
+        outputName: 'AggPoints_ouput'+new Date().getTime(),
+        context:context,
+        f: 'json',
+        token: token
+    }
+    var clock=null;
+    ajaxfunc(url, 'POST', rest_data, function (res) {
+        var jobId = res.jobId;
+        clock =  window.setInterval(function () { re(jobId)}, 2000);
+    })
+    var re = function(jobId) {
+        var joburl = GA_url + "AggregatePoints/jobs/" + jobId;
+        var data = {
+            f: 'json',
+            token: token
+        };
+        ajaxfunc(joburl, 'POST', data, function (res) {
+            var jobStatus = res.jobStatus;
+            if (jobStatus == 'esriJobSubmitted' || jobStatus == 'esriJobWaiting' || jobStatus == 'esriJobExecuting') {
                 console.log(jobStatus);
+            }
+            if (jobStatus == 'esriJobFailed' || jobStatus == 'esriJobTimedOut' || jobStatus == 'esriJobCancelling' || jobStatus == 'esriJobCancelled') {
+                console.log(res.messages);
                 window.clearInterval(clock);
                 callback("")
             }

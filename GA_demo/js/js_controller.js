@@ -1,4 +1,5 @@
 dojo.require("esri.map");
+dojo.require("esri.layers.FeatureLayer");
 
 var map;
 
@@ -24,6 +25,11 @@ function init() {
         slider:false
     });
 
+}
+
+function MapAdd(url) {
+    var FeatureLayer = new esri.layers.FeatureLayer(layerUrl);
+    map.addLayer(url);
 }
 
 dojo.ready(init);
