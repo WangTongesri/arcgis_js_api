@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>basemap</title>
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/soria/soria.css">-->
+    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/dijit/themes/soria/soria.css">
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">-->
+    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/esri/css/esri.css">
+
+    <style>
+        body{
+            padding:0;
+            margin: 0;
+        }
+        #map{
+            height: -webkit-fill-available;
+        }
+    </style>
+
+    <script>var dojoConfig = { parseOnLoad: true };</script>
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!--<script src="https://js.arcgis.com/3.20/"></script>-->
+    <script src="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/init.js"></script>
+    <script>
+        dojo.require("esri.map");
+        dojo.require("esri.layers.FeatureLayer");
+
+        var map;
+
+        function init() {
+            var initExtent = new esri.geometry.Extent({
+                "xmin": -74.5159714033041,
+                "ymin": 40.47276291766292,
+                "xmax":  -73.2193649755452,
+                "ymax": 41.215670632804525,
+                "spatialReference": {
+                    "wkid": 4326
+                }
+            });
+            map = new esri.Map("map", {
+//                extent: initExtent,
+                basemap: "osm",
+                center: [103.95,22.5],
+                zoom: 10,
+                showAttribution:false,
+                showLabels : true,
+                logo:false,
+                scale:true,
+                slider:false
+            });
+
+            MapAdd("https://hosted106.arcgisonline.cn/arcgis/rest/services/Hosted/001/FeatureServer/0")
+
+        }
+
+        function MapAdd(layerUrl){
+            var FeatureLayer = new esri.layers.FeatureLayer(layerUrl);
+            map.addLayer(FeatureLayer);
+
+            //跳转
+            /*方法1：js api*/
+            var LayerExtent = FeatureLayer.fullExtent;
+            if(!LayerExtent==false){
+                var x = (LayerExtent.xmax - LayerExtent.xmin)/2 + LayerExtent.xmin; //计算范围中心x坐标 （大-小）/2 + 小；
+                var y = (LayerExtent.ymax - LayerExtent.ymin)/2 + LayerExtent.ymin; //计算范围中心y坐标 （大-小）/2 + 小；
+                var value = esri.geometry.webMercatorUtils.xyToLngLat(x, y, true);
+                map.centerAndZoom([value[0],value[1]],13);
+                return;
+            }
+
+            /*方法2：服务查询*/
+            queryToken(layerUrl,function (res_token) {
+                var token = res_token.token;
+                queryExtent_function(layerUrl,token,function (res_extent) {
+                    console.log(res_extent);
+
+                    var fullExutent=res_extent.extent;
+                    var x = (fullExutent.xmax - fullExutent.xmin)/2 + fullExutent.xmin; //计算范围中心x坐标 （大-小）/2 + 小；
+                    var y = (fullExutent.ymax - fullExutent.ymin)/2 + fullExutent.ymin; //计算范围中心y坐标 （大-小）/2 + 小；
+                    map.centerAndZoom([x,y],10);
+                })
+            })
+        }
+
+        function queryToken (url,callback) {
+            var token_url="https://portal106.arcgisonline.cn/arcgis/sharing/rest/generateToken";
+            var portal_tokenData = {
+                username: 'arcgis', //portal用户名
+                password: 'esri1234', //portal密码
+                client: 'referer',
+                referer: url,
+                expiration: '60',
+                f: 'pjson'
+            };
+            $.ajax({
+                url: token_url,
+                type: 'POST',
+                data: portal_tokenData,
+                timeout: 3600000,
+                cache: false,
+                async: false,
+                dataType: 'json',
+                success: function (res) {
+                    callback(res);
+                },
+                error: function (res) {
+                    console.log(res);
+                }
+            });
+        };
+
+        function queryExtent_function (url,token,callback) {
+            var query_fullExtet={
+                where:"1=1",
+                returnExtentOnly:true,
+                returnGeometry:false,
+                f: 'json',
+                token:token
+            }
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: query_fullExtet,
+                timeout: 3600000,
+                cache: false,
+                async: false,
+                dataType: 'json',
+                success: function (res) {
+                    callback(res);
+                },
+                error: function (res) {
+                    console.log(res);
+//                    callback('');
+                }
+            });
+        };
+
+        dojo.ready(init);
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
