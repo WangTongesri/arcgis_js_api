@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>basemap</title>
-    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/soria/soria.css">-->
-    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/dijit/themes/soria/soria.css">
-    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">-->
-    <link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/esri/css/esri.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/soria/soria.css">
+    <!--<link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/dijit/themes/soria/soria.css">-->
+    <link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">
+    <!--<link rel="stylesheet" href="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/esri/css/esri.css">-->
 
     <style>
         body{
@@ -19,13 +19,14 @@
     </style>
 
     <script>var dojoConfig = { parseOnLoad: true };</script>
-    <!--<script src="https://js.arcgis.com/3.20/"></script>-->
-    <script src="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/init.js"></script>
+    <script src="https://js.arcgis.com/3.20/"></script>
+    <!--<script src="https://gademo.arcgisonline.cn/arcgis_js_api/library/3.21/3.21/init.js"></script>-->
     <script>
         dojo.require("esri.map");
 
         var map;
 
+        //加载esri默认底图
         function init() {
             var initExtent = new esri.geometry.Extent({
                 "xmin": -16918000,
@@ -50,7 +51,37 @@
 
         }
 
-        dojo.ready(init);
+        //加载geoq深蓝底图
+        function init_geoq() {
+            var initExtent = new esri.geometry.Extent({
+                "xmin": -16918000,
+                "ymin": 1551000,
+                "xmax": 5936000,
+                "ymax": 11217000,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            });
+            esri.basemaps.chtopo = {
+                baseMapLayers: [{url: 'http://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer'}],
+                title: "中文版地形图"
+            };
+            map = new esri.Map('map', {
+                //extent: initExtent,
+                basemap: 'chtopo',//'dark-gray-vector',//'chtopo',
+                center: [103.95,22.5],
+                zoom: 6,
+                showAttribution:false,
+                showLabels : true,
+                logo:false,
+                scale:true,
+                slider:false
+            });
+
+        }
+
+        //dojo.ready(init);
+        dojo.ready(init_geoq);
     </script>
 </head>
 <body>
